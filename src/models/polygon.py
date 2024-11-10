@@ -2,53 +2,94 @@ import numpy as np
 from matplotlib.path import Path
 
 class Polygon:
-    """Класс, представляющий многоугольную область с распределенным зарядом."""
+    """
+    Класс для представления заряженной области в форме многоугольника.
     
-    def __init__(self, charge_density: float, num_points: int):
+    Attributes:
+        charge_density (float): плотность заряда
+        num_points (int): количество вершин многоугольника
+        vertices (list): список координат вершин
+        completed (bool): завершен ли многоугольник
+    """
+    def __init__(self, charge_density, num_points):
+        """
+        Инициализация многоугольника.
+        
+        Args:
+            charge_density (float): плотность заряда
+            num_points (int): количество вершин
+        """
         self.charge_density = charge_density
         self.num_points = num_points
         self.vertices = []
         self.completed = False
 
-    def add_vertex(self, x: float, y: float):
+    def add_vertex(self, x, y):
+        """
+        Добавляет новую вершину в многоугольник.
+        
+        Args:
+            x (float): x-координата вершины
+            y (float): y-координата вершины
+        """
         self.vertices.append((x, y))
         if len(self.vertices) == self.num_points:
             self.completed = True
 
-    def electric_field(self, point_x: float, point_y: float) -> tuple[float, float]:
-        field_x, field_y = 0, 0
+    def electric_field(self, x, y):
+        """
+        Вычисляет напряженность электрического поля от заряженной области.
+        
+        Args:
+            x (float): x-координата точки
+            y (float): y-координата точки
+            
+        Returns:
+            tuple: компоненты вектора напряженности (Ex, Ey)
+        """
+        Ex, Ey = 0, 0
         COULOMB_CONSTANT = 8.99e9
-        GRID_SIZE = 10
-        MIN_DISTANCE = 0.001
+        GRID_SIZE = 10  # Количество разбиений по каждой оси
+        MIN_DISTANCE = 0.001  # Минимальное расстояние для расчетов
         
-        x_min = min(vertex[0] for vertex in self.vertices)
-        x_max = max(vertex[0] for vertex in self.vertices)
-        y_min = min(vertex[1] for vertex in self.vertices)
-        y_max = max(vertex[1] for vertex in self.vertices)
+        # Находим границы полигона
+        x_min = min(v[0] for v in self.vertices)
+        x_max = max(v[0] for v in self.vertices)
+        y_min = min(v[1] for v in self.vertices)
+        y_max = max(v[1] for v in self.vertices)
         
-        cell_width = (x_max - x_min) / GRID_SIZE
-        cell_height = (y_max - y_min) / GRID_SIZE
-        cell_area = cell_width * cell_height
+        # Размеры элементарной ячейки
+        dx = (x_max - x_min) / GRID_SIZE
+        dy = (y_max - y_min) / GRID_SIZE
+        dA = dx * dy  # Площадь элементарной ячейки
         
+        from matplotlib.path import Path
         polygon_path = Path(self.vertices)
         
+        # Суммируем вклады от всех элементарных ячеек
         for i in range(GRID_SIZE):
             for j in range(GRID_SIZE):
-                cell_center_x = x_min + (i + 0.5) * cell_width
-                cell_center_y = y_min + (j + 0.5) * cell_height
+                xi = x_min + (i + 0.5) * dx
+                yi = y_min + (j + 0.5) * dy
                 
-                if polygon_path.contains_point((cell_center_x, cell_center_y)):
-                    distance_x = point_x - cell_center_x
-                    distance_y = point_y - cell_center_y
-                    distance = np.sqrt(distance_x**2 + distance_y**2)
+                if polygon_path.contains_point((xi, yi)):
+                    r_x = x - xi
+                    r_y = y - yi
+                    r = np.sqrt(r_x**2 + r_y**2)
                     
-                    if distance > MIN_DISTANCE:
-                        cell_charge = self.charge_density * cell_area
-                        field_magnitude = COULOMB_CONSTANT * cell_charge / distance**2
-                        field_x += field_magnitude * distance_x / distance
-                        field_y += field_magnitude * distance_y / distance
+                    if r > MIN_DISTANCE:
+                        dq = self.charge_density * dA
+                        e = COULOMB_CONSTANT * dq / r**2
+                        Ex += e * r_x / r
+                        Ey += e * r_y / r
         
-        return field_x, field_y
+        return Ex, Ey
 
-    def fill_color(self) -> str:
-        return 'red' if self.charge_density > 0 else 'blue' 
+    def fill_color(self):
+        """
+        Определяет цвет заливки многоугольника в зависимости от знака заряда.
+        
+        Returns:
+            str: цвет заливки ('red' для положительного заряда, 'blue' для отрицательного)
+        """
+        return 'red' if self.charge_density > 0 else 'blue'
