@@ -2,7 +2,6 @@
 Главный модуль программы визуализации электрического поля.
 Инициализирует графический интерфейс приложения.
 """
-
 from tkinter import Tk
 from src.gui.electric_field_app import ElectricFieldApp
 
