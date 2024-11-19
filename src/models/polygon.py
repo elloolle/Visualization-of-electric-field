@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib.path import Path
+from typing import List, Tuple, Optional
 
 class Polygon:
     """
@@ -11,7 +12,7 @@ class Polygon:
         vertices (list): список координат вершин
         completed (bool): завершен ли многоугольник
     """
-    def __init__(self, charge_density, num_points):
+    def __init__(self, charge_density: float, num_points: int) -> None:
         """
         Инициализация многоугольника.
         
@@ -19,12 +20,12 @@ class Polygon:
             charge_density (float): плотность заряда
             num_points (int): количество вершин
         """
-        self.charge_density = charge_density
-        self.num_points = num_points
-        self.vertices = []
-        self.completed = False
+        self.charge_density: float = charge_density
+        self.num_points: int = num_points
+        self.vertices: List[Tuple[float, float]] = []
+        self.completed: bool = False
 
-    def add_vertex(self, x, y):
+    def add_vertex(self, x: float, y: float) -> None:
         """
         Добавляет новую вершину в многоугольник.
         
@@ -36,7 +37,7 @@ class Polygon:
         if len(self.vertices) == self.num_points:
             self.completed = True
 
-    def electric_field(self, x, y):
+    def electric_field(self, x: float, y: float) -> Tuple[float, float]:
         """
         Вычисляет напряженность электрического поля от заряженной области.
         
@@ -47,45 +48,45 @@ class Polygon:
         Returns:
             tuple: компоненты вектора напряженности (Ex, Ey)
         """
-        Ex, Ey = 0, 0
-        COULOMB_CONSTANT = 8.99e9
-        GRID_SIZE = 10  # Количество разбиений по каждой оси
-        MIN_DISTANCE = 0.001  # Минимальное расстояние для расчетов
+        Ex, Ey = 0.0, 0.0
+        COULOMB_CONSTANT: float = 8.99e9
+        GRID_SIZE: int = 10  # Количество разбиений по каждой оси
+        MIN_DISTANCE: float = 0.001  # Минимальное расстояние для расчетов
         
         # Находим границы полигона
-        x_min = min(v[0] for v in self.vertices)
-        x_max = max(v[0] for v in self.vertices)
-        y_min = min(v[1] for v in self.vertices)
-        y_max = max(v[1] for v in self.vertices)
+        x_min: float = min(v[0] for v in self.vertices)
+        x_max: float = max(v[0] for v in self.vertices)
+        y_min: float = min(v[1] for v in self.vertices)
+        y_max: float = max(v[1] for v in self.vertices)
         
         # Размеры элементарной ячейки
-        dx = (x_max - x_min) / GRID_SIZE
-        dy = (y_max - y_min) / GRID_SIZE
-        dA = dx * dy  # Площадь элементарной ячейки
+        dx: float = (x_max - x_min) / GRID_SIZE
+        dy: float = (y_max - y_min) / GRID_SIZE
+        dA: float = dx * dy  # Площадь элементарной ячейки
         
         from matplotlib.path import Path
-        polygon_path = Path(self.vertices)
+        polygon_path: Path = Path(self.vertices)
         
         # Суммируем вклады от всех элементарных ячеек
         for i in range(GRID_SIZE):
             for j in range(GRID_SIZE):
-                xi = x_min + (i + 0.5) * dx
-                yi = y_min + (j + 0.5) * dy
+                xi: float = x_min + (i + 0.5) * dx
+                yi: float = y_min + (j + 0.5) * dy
                 
                 if polygon_path.contains_point((xi, yi)):
-                    r_x = x - xi
-                    r_y = y - yi
-                    r = np.sqrt(r_x**2 + r_y**2)
+                    r_x: float = x - xi
+                    r_y: float = y - yi
+                    r: float = np.sqrt(r_x**2 + r_y**2)
                     
                     if r > MIN_DISTANCE:
-                        dq = self.charge_density * dA
-                        e = COULOMB_CONSTANT * dq / r**2
+                        dq: float = self.charge_density * dA
+                        e: float = COULOMB_CONSTANT * dq / r**2
                         Ex += e * r_x / r
                         Ey += e * r_y / r
         
         return Ex, Ey
 
-    def fill_color(self):
+    def fill_color(self) -> str:
         """
         Определяет цвет заливки многоугольника в зависимости от знака заряда.
         

@@ -6,12 +6,12 @@ from tkinter import Tk
 from src.gui.electric_field_app import ElectricFieldApp
 
 if __name__ == "__main__":
-    # Создаем главное окно приложения
-    root = Tk()
+    # Создаем главное окно приложения 
+    root: Tk = Tk()
     
     # Инициализируем основной класс приложения для визуализации электрического поля
     # root - корневое окно Tkinter, в котором будет размещено приложение
-    app = ElectricFieldApp(root)
+    app: ElectricFieldApp = ElectricFieldApp(root)
     
     # Запускаем главный цикл обработки событий приложения
     # Это необходимо для того, чтобы окно оставалось открытым и реагировало на действия пользователя

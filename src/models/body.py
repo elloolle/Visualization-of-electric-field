@@ -10,7 +10,7 @@ class Body:
         vx (float): скорость по x в м/с
         vy (float): скорость по y в м/с
     """
-    def __init__(self, x, y, mass, charge):
+    def __init__(self, x: float, y: float, mass: float, charge: float) -> None:
         """
         Инициализация тела.
         
@@ -20,14 +20,14 @@ class Body:
             mass (float): масса тела
             charge (float): заряд тела
         """
-        self.x = x
-        self.y = y
-        self.mass = mass
-        self.charge = charge
-        self.vx = 0  # Начальная скорость по x
-        self.vy = 0  # Начальная скорость по y
+        self.x: float = x
+        self.y: float = y
+        self.mass: float = mass
+        self.charge: float = charge
+        self.vx: float = 0  # Начальная скорость по x
+        self.vy: float = 0  # Начальная скорость по y
 
-    def update_position(self, fx, fy, dt):
+    def update_position(self, fx: float, fy: float, dt: float) -> None:
         """
         Обновляет положение и скорость тела согласно законам Ньютона.
         
@@ -37,8 +37,8 @@ class Body:
             dt (float): временной шаг
         """
         # Вычисляем ускорение по второму закону Ньютона: F = ma
-        ax = fx / self.mass
-        ay = fy / self.mass
+        ax: float = fx / self.mass
+        ay: float = fy / self.mass
 
         # Обновляем скорости
         self.vx += ax * dt
